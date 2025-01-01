@@ -1,34 +1,42 @@
-# **Module 9: Databases and Web Applications**
+# **Module 10: Secure User Accounts, Pydantic Validation, and CI/CD**
 
 ## **Module Overview**
 
-In **Module 9**, you will learn how to integrate and manage a **PostgreSQL** database within a containerized environment using **Docker Compose**. You will interact with the database through **pgAdmin**, leveraging raw **SQL** commands to create tables and insert, query, update, and delete records. This approach ensures that you gain hands-on experience with fundamental SQL operations before transitioning to more advanced techniques (such as ORMs) in future modules.
+In **Module 10**, you will leverage your foundational knowledge of **databases** (from Module 9) and extend it to build a **secure user model** with **SQLAlchemy**, **Pydantic** validation, and an end-to-end **CI/CD pipeline** that pushes your Docker image to **Docker Hub**. Specifically, you will:
 
-By completing this module, you will fulfill the following **Course Learning Outcomes (CLOs)**:
+1. Create a **User** model that stores **hashed passwords** (no plain text!), enforcing best security practices.  
+2. Validate user data using **Pydantic**, ensuring fields (e.g., email) meet required formats and preventing malformed data from reaching the database.  
+3. Write and run **unit** and **integration tests** in GitHub Actions, where a **PostgreSQL** container is used for real database interactions.  
+4. Finalize a **CI/CD workflow** to build, scan, and deploy your Docker image to Docker Hub, promoting DevOps principles that ensure code quality and security.
 
+By successfully completing Module 10, you will demonstrate mastery of several **Course Learning Outcomes (CLOs)**:
+
+- **CLO 3:** Create Python applications with automated testing.  
+- **CLO 4:** Set up GitHub Actions for Continuous Integration (CI), automating tests and Docker builds to demonstrate DevOps principles.  
 - **CLO 10:** Apply containerization techniques to containerize applications using Docker.  
-- **CLO 12:** Integrate Python programs with SQL databases to create and manipulate data.
+- **CLO 12:** Integrate Python programs with SQL databases to create and manipulate data.  
+- **CLO 13:** Serialize, deserialize, and validate JSON using Python with Pydantic.  
+- **CLO 14:** Utilize best practices for software development security by implementing secure authentication and authorization techniques, including encryption, hashing, and encoding.
 
 ---
 
-## **Videos**
+## **Why Focus on Secure User Models, Validation, and CI/CD?**
 
-1. **Overview Video (on Canvas):**  
-   - Explains how **Docker Compose** can spin up multiple services (FastAPI, PostgreSQL, pgAdmin).  
-   - Introduces **pgAdmin** for visually inspecting and interacting with your database.
-
-2. **Hands-On Video (on Canvas):**  
-   - Demonstrates the process of running **SQL** commands in pgAdmin to create tables, insert data, and query results.  
-   - Provides an example of verifying inserted records by running various **SELECT** statements.
+1. **Security from the Start:** Handling passwords securely (hashed + salted) and validating inputs (with Pydantic) helps you avoid critical vulnerabilities.  
+2. **Seamless Development:** Orchestrating tests (unit, integration) via GitHub Actions ensures code reliability and quickly flags regressions.  
+3. **Production Readiness:** By deploying Docker images to Docker Hub, you lay the groundwork for future expansions (Routes in Module 12, UI in Module 13, final project in Module 14).
 
 ---
 
-## **Why Databases in a Containerized Environment?**
+## **Module 10 Videos**
 
-Running a database in a container alongside your application ensures **consistent, reproducible** setups for local development, testing, and potential deployment. Specifically:
+1. **Overview Video (on Canvas)**  
+   - Shows how **SQLAlchemy** models and **Pydantic** schemas integrate for secure user data handling.  
+   - Explains basic password hashing with a library (e.g., `bcrypt`).  
 
-- **Isolation and Portability:** Containers encapsulate all dependencies, making it easier for different team members to match development environments.  
-- **pgAdmin Convenience:** A graphical interface allows you to easily write and execute SQL commands without installing PostgreSQL natively on your machine.
+2. **Hands-On Video (on Canvas)**  
+   - Demonstrates writing **unit** and **integration tests** that spin up a **PostgreSQL** service in GitHub Actions.  
+   - Explains building a **CI/CD pipeline** that checks for vulnerabilities before pushing to Docker Hub.
 
 ---
 
@@ -36,189 +44,144 @@ Running a database in a container alongside your application ensures **consisten
 
 ### **Recall**
 
-**Title:** SQL Basics in a Dockerized PostgreSQL  
+**Title:** From Raw SQL to an ORM & CI/CD  
 **Grading Type:** Points  
 **Instructions:**  
-
-1. **Reflect on Any Past Database Experience:**  
-   - Have you previously used SQL in a non-containerized setting?  
-   - What benefits might containerization bring compared to running a local database install?
-
+1. **Reflect:** How did manually writing SQL in Module 9 inform your approach to database operations? Why might an ORM approach (SQLAlchemy) be more efficient or safer for production?  
 2. **Discussion Prompt:**  
-   - Considering you’ll write raw SQL in pgAdmin, how might this experience deepen your understanding of relational database structures?
+   - Why is hashing passwords a mandatory practice in modern web apps?  
+   - What benefits do automated tests + Docker deployment offer as your project scales?
 
-**Purpose:** These prompts will help you connect previous knowledge (if any) to the container-based setup you’ll be using in this module.
+**Purpose:** These questions transition you from manual SQL operations to a robust, professionally aligned Python stack with continuous delivery.
 
 ---
 
-### **Step-by-Step Guide: Docker Compose, pgAdmin, and SQL**
+## **Step-by-Step Guide: Secure User Model & CI/CD**
 
-1. **Inspect and Run Docker Compose**  
-   - Ensure `docker-compose.yml` defines:  
-     - A **web** service (FastAPI).  
-     - A **db** service (PostgreSQL).  
-     - Optionally, a **pgadmin** service for graphical DB management.  
-   - Run `docker-compose up --build` to start all containers.
+### **1. Creating a Secure User Model (SQLAlchemy)**
 
-2. **Access pgAdmin**  
-   - Usually available at [http://localhost:5050](http://localhost:5050).  
-   - Login credentials and connection details are set in `docker-compose.yml` (commonly `postgres` / `postgres`).
+- **Model Fields:** `id`, `username`, `email`, `password_hash`, `created_at`.  
+- **Uniqueness Constraints:** Enforce no duplicate usernames or emails.  
+- **Hashed Passwords:** Rely on a hashing library (e.g., `bcrypt`) to store a salted hash instead of plain-text passwords.
 
-3. **Create and Explore a Database**  
-   - Use pgAdmin to connect to your PostgreSQL container.  
-   - Confirm that you can see (or create) a database (e.g., `fastapi_db`).
+### **2. Validating Data with Pydantic**
 
-4. **Execute SQL Commands**  
-   - Open pgAdmin’s **Query Tool**.  
-   - Run provided SQL statements to create tables, insert records, update records, query data, and delete data.
+- **UserCreate Schema:**  
+  - Includes `username`, `email`, `password` in plain text (for creation only).  
+  - Optionally validate minimum password length, email format, etc.  
+
+- **UserRead Schema:**  
+  - Exposes only safe fields (e.g., `id`, `username`, `email`, `created_at`), excluding `password_hash`.
+
+### **3. Database Testing in GitHub Actions**
+
+- **Unit Tests:**  
+  - Verify password hashing/verification methods (ensure plain text != hashed text).  
+  - Check that invalid user data (e.g., duplicate username) is handled gracefully.  
+- **Integration Tests:**  
+  - Spin up a test **PostgreSQL** container in GitHub Actions.  
+  - Insert users, confirm the database rejects invalid inputs, etc.  
+
+### **4. CI/CD Workflow: Build, Scan, Deploy**
+
+- **Test Stage:** Runs all unit/integration tests; fails early on errors.  
+- **Security/Scan Stage:** (Optional) uses a scanner to detect high/critical vulnerabilities in your Docker image.  
+- **Deploy Stage:** Pushes the final image to **Docker Hub** if prior stages succeed.
 
 ---
 
 ## **Hands-On Assignment**
 
-**Title:** Working with Raw SQL in pgAdmin  
+**Title:** Secure User Model, Pydantic Validation, Database Testing, and Docker Deployment  
 **Grading Type:** Points  
 
-**Instructions**:  
+**Instructions:**
 
-1. **Set Up Your Environment**  
-   - Clone the FastAPI Calculator repository (or project) with a `docker-compose.yml` already configured for FastAPI + PostgreSQL + (optional) pgAdmin.  
-   - Run `docker-compose up --build`.  
-   - Confirm you can access **pgAdmin** at [http://localhost:5050](http://localhost:5050).
+1. **Set Up Your SQLAlchemy User Model**  
+   - Define columns for `username`, `email`, `password_hash`, ensuring **unique constraints**.  
+   - Incorporate a `created_at` timestamp.
 
-2. **Open pgAdmin Query Tool**  
-   - Connect to the PostgreSQL server (host `db`, user `postgres`, or as defined in Compose).  
-   - Select your target database (e.g., `fastapi_db`).
+2. **Add Pydantic Schemas**  
+   - **UserCreate**: For new user data (`username`, `email`, `password`).  
+   - **UserRead**: For returning user details (omitting `password_hash`).
 
-3. **Follow These SQL Steps**  
-   **(A) Create Tables**  
-   ```sql
-   CREATE TABLE users (
-       id SERIAL PRIMARY KEY,
-       username VARCHAR(50) NOT NULL UNIQUE,
-       email VARCHAR(100) NOT NULL UNIQUE,
-       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-   );
+3. **Implement Hashing**  
+   - Use a function to hash raw passwords before storing them in `password_hash`.  
+   - Provide a verify function to confirm a plain-text password matches the stored hash.
 
-   CREATE TABLE calculations (
-       id SERIAL PRIMARY KEY,
-       operation VARCHAR(20) NOT NULL,
-       operand_a FLOAT NOT NULL,
-       operand_b FLOAT NOT NULL,
-       result FLOAT NOT NULL,
-       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       user_id INTEGER NOT NULL,
-       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-   );
-   ```
-   **(B) Insert Records**  
-   ```sql
-   INSERT INTO users (username, email) 
-   VALUES 
-   ('alice', 'alice@example.com'), 
-   ('bob', 'bob@example.com');
+4. **Write Unit and Integration Tests**  
+   - Unit tests for hashing, schema validation, etc.  
+   - Integration tests requiring a real database (Postgres container in GitHub Actions) to test user uniqueness, invalid emails, etc.
 
-   INSERT INTO calculations (operation, operand_a, operand_b, result, user_id)
-   VALUES
-   ('add', 2, 3, 5, 1),
-   ('divide', 10, 2, 5, 1),
-   ('multiply', 4, 5, 20, 2);
-   ```
-   **(C) Query Data**  
-   ```sql
-   -- Retrieve all users
-   SELECT * FROM users;
+5. **Configure CI/CD**  
+   - **Test**: Ensure all tests pass in GitHub Actions.  
+   - **Deploy**: Push your Docker image to **Docker Hub** upon successful tests.
 
-   -- Retrieve all calculations
-   SELECT * FROM calculations;
-
-   -- Join users and calculations
-   SELECT u.username, c.operation, c.operand_a, c.operand_b, c.result
-   FROM calculations c
-   JOIN users u ON c.user_id = u.id;
-   ```
-   **(D) Update a Record**  
-   ```sql
-   UPDATE calculations
-   SET result = 6
-   WHERE id = 1;  -- or whichever row you want to update
-   ```
-   **(E) Delete a Record**  
-   ```sql
-   DELETE FROM calculations
-   WHERE id = 2;  -- example record to remove
-   ```
-
-4. **Document Your Outputs**  
-   - For **each** SQL command above, take a **screenshot** of the pgAdmin output window showing the query and result (e.g., “Query returned successfully: X rows affected”).  
-   - Compile these screenshots into a **Word document** (or PDF) with brief captions indicating what each screenshot shows.
-
-5. **Submit**  
-   - Your **Word document** (or PDF) containing screenshots of successful table creation, insertion, querying, update, and deletion steps.  
-   - A short (2-3 paragraph) explanation of any challenges you encountered and how you solved them.
+6. **Submit**  
+   - **GitHub Repository Link**: Must include **your own code** (not a copy of the instructor’s repo).  
+   - In your **README**, add:  
+     - A brief overview of how to run tests locally.  
+     - **Links** to your Docker Hub repository (where your image is pushed).  
+   - Remember, this is the same project you’ll build upon in future modules, ultimately forming your final project.
 
 ---
 
 ## **Reflect**
 
-**Title:** Module 9 Reflection  
+**Title:** Module 10 Reflection  
 **Grading Type:** Points  
 **Instructions:**  
-Write **600-700 words** on the following:
+Write **600-700 words** covering:
 
-1. **Containerization (CLO 10):** How did Docker Compose simplify running your database (PostgreSQL) alongside FastAPI?  
-2. **Basic Database Integration (CLO 12):** Discuss your comfort with raw SQL operations in pgAdmin. Do you see the value in knowing SQL even if you later use an ORM?  
-3. **Challenges and Insights:** Note any tricky aspects (e.g., port conflicts, user permissions, SQL syntax errors) and how you overcame them.  
-4. **Looking Ahead:** How might this experience influence your approach to more advanced database tasks in later modules (e.g., migrations, advanced joins, indexing)?
+1. **CLO 3, 4, 10, 12, 13, 14:** Reflect on how each of these CLOs comes into play (testing, CI/CD, containerization, database integration, data validation, security).  
+2. **Security & Validation:** What new insights did you gain about hashing passwords and validating user input with Pydantic?  
+3. **Database Testing:** How did spinning up a Postgres container in GitHub Actions influence your confidence in your code?  
+4. **Challenges & Solutions:** Note any significant hurdles (e.g., Docker Hub authentication, environment variables for tests) and how you resolved them.  
+5. **Forward-Looking:** How does having a secure user model + automated pipeline pave the way for Modules 11–14?
 
 ---
 
 ## **Quiz**
 
-**Title:** PostgreSQL & Raw SQL Quiz  
+**Title:** Secure User Model & CI/CD Quiz  
 **Grading Type:** Points  
 
-**Instructions**:
+**Instructions:**  
+1. **Complete the Quiz on Canvas**, covering topics like:  
+   - SQLAlchemy model basics (unique constraints, hashed passwords).  
+   - Pydantic validations and error handling.  
+   - GitHub Actions test containers (PostgreSQL).  
+   - Docker image scanning + deployment to Docker Hub.  
 
-1. **Complete the Quiz on Canvas**, focusing on:  
-   - Docker Compose fundamentals (managing multiple containers).  
-   - Basic SQL operations (`CREATE TABLE`, `INSERT`, `SELECT`, `UPDATE`, `DELETE`).  
-   - Understanding of one-to-many relationships and foreign keys.  
-
-2. **Question Types**:  
-   - **Multiple Choice:** Identify correct Docker Compose or SQL usage.  
-   - **Short Answer:** Write or explain simple SQL queries (e.g., join, insert).  
-
----
-
-## **Supplementary Materials**
-
-- **[Docker Documentation](https://docs.docker.com/compose/)**  
-  *Refine your knowledge on multi-container orchestration.*  
-- **[PostgreSQL Official Docs](https://www.postgresql.org/docs/)**  
-  *Explore deeper into indexing, functions, and database performance.*  
-- **[pgAdmin Documentation](https://www.pgadmin.org/docs/)**  
-  *Leverage advanced pgAdmin features for backups, user management, etc.*  
-- **[SQL Tutorial](https://www.w3schools.com/sql/)**  
-  *Practice more advanced queries, subqueries, and joins.*  
-
+2. **Question Types:**  
+   - **Multiple-Choice:** Identify correct usage of hashing or Pydantic validations.  
+   - **Short Answer:** Explain how you’d handle a failing test or a duplicate username scenario.  
+   - **Scenario-Based:** Propose a fix if your pipeline fails to push an image to Docker Hub or if the Postgres container won’t spin up in CI.
 
 ---
 
 ## **Tips for Success**
 
-1. **Follow the Queries Step-by-Step:** Running the SQL statements in order ensures you don’t miss any foreign key dependencies.  
-2. **Check Query Outputs:** Watch for syntax errors or missed commas that can prevent queries from running.  
-3. **Container Logs:** If PostgreSQL won’t start or connect, inspect logs via `docker-compose logs db`.  
-4. **Organize Screenshots Clearly:** Label each screenshot (e.g., “Fig 1: CREATE TABLE users success output”).  
-5. **Ask for Help:** If you’re unsure, consult official docs or your peers for quick guidance.
+1. **Never Store Plain Passwords:** Only store salted, hashed passwords.  
+2. **Validate with Pydantic:** Catch invalid data (e.g., malformed emails, short passwords) early.  
+3. **Test Thoroughly:** Combine unit + integration tests to cover all code paths, ensuring your pipeline is robust.  
+4. **Automate CI/CD:** A fully automated workflow frees you to focus on feature development while maintaining quality.  
+5. **Documentation:** Keep a clear README—this project is your stepping stone for Modules 11–14, culminating in your final project.
 
 ---
 
 ## **Submission Deadline**
 
-Please upload your **Word document** (or PDF) with all required screenshots and your **Module 9 Reflection** by **[Insert Deadline Here]**. Late submissions may incur penalties in line with course policy.
+Please submit the following by **[Insert Deadline Here]**:
+
+1. **GitHub Repository Link** (showing your code, tests, and CI config).  
+2. **Module 10 Reflection** (600-700 words).  
+3. **In your GitHub repo’s README**:  
+   - Links to your Docker Hub repository.  
+   - Instructions on how to run tests locally.  
+
+Late submissions may be subject to course policy penalties.
 
 ---
 
-**Congratulations!** You’ve successfully created and managed tables in a **containerized** PostgreSQL database, executing **raw SQL** commands via **pgAdmin**. These core skills will prove invaluable as you move on to more sophisticated database interactions in future modules.
+**Congratulations!** You have taken a significant step toward mastering secure user management, robust validation, comprehensive testing, and automated deployments. This foundation will prove invaluable as you evolve your application in Modules 11–14, leading to a polished **final project**.
