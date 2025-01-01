@@ -131,13 +131,12 @@ By successfully completing Module 10, you will demonstrate mastery of several **
 **Title:** Module 10 Reflection  
 **Grading Type:** Points  
 **Instructions:**  
-Write **600-700 words** covering:
+Write **200-300 words** covering:
 
 1. **CLO 3, 4, 10, 12, 13, 14:** Reflect on how each of these CLOs comes into play (testing, CI/CD, containerization, database integration, data validation, security).  
 2. **Security & Validation:** What new insights did you gain about hashing passwords and validating user input with Pydantic?  
-3. **Database Testing:** How did spinning up a Postgres container in GitHub Actions influence your confidence in your code?  
-4. **Challenges & Solutions:** Note any significant hurdles (e.g., Docker Hub authentication, environment variables for tests) and how you resolved them.  
-5. **Forward-Looking:** How does having a secure user model + automated pipeline pave the way for Modules 11–14?
+3. **Challenges & Solutions:** Note any significant hurdles (e.g., Docker Hub authentication, environment variables for tests) and how you resolved them.  
+
 
 ---
 
@@ -175,7 +174,7 @@ Write **600-700 words** covering:
 Please submit the following by **[Insert Deadline Here]**:
 
 1. **GitHub Repository Link** (showing your code, tests, and CI config).  
-2. **Module 10 Reflection** (600-700 words).  
+2. **Module 10 Reflection** (200-300 words).  
 3. **In your GitHub repo’s README**:  
    - Links to your Docker Hub repository.  
    - Instructions on how to run tests locally.  
