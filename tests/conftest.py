@@ -1,12 +1,4 @@
-# ======================================================================================
-# Comprehensive Test Configuration File (conftest.py)
-# ======================================================================================
-# Purpose: This file sets up all testing infrastructure including:
-# - Database connections and sessions
-# - Test data generation
-# - Server management
-# - Browser automation
-# ======================================================================================
+# tests/conftest.py
 
 import subprocess
 import time
@@ -22,7 +14,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
-from app.database import Base
+from app.database import Base, get_engine, get_sessionmaker
 from app.models.user import User
 from app.config import settings
 from app.database_init import init_db, drop_db
@@ -44,14 +36,9 @@ Faker.seed(12345)
 
 logger.info(f"Using database URL: {settings.DATABASE_URL}")
 
-# Create an engine and sessionmaker based on DATABASE_URL
-test_engine = create_engine(
-    settings.DATABASE_URL,
-    pool_pre_ping=True,  # Ensures connections are valid
-    pool_size=5,         # Number of connections to maintain
-    max_overflow=10
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+# Create an engine and sessionmaker based on DATABASE_URL using factory functions
+test_engine = get_engine(database_url=settings.DATABASE_URL)
+TestingSessionLocal = get_sessionmaker(engine=test_engine)
 
 # ======================================================================================
 # Helper Functions
@@ -59,7 +46,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 def create_fake_user() -> Dict[str, str]:
     """
     Generate a dictionary of fake user data for testing.
-    
+
     Returns:
         A dict containing user fields with fake data.
     """
@@ -76,7 +63,7 @@ def managed_db_session():
     """
     Context manager for safe database session handling.
     Automatically handles rollback and cleanup.
-    
+
     Example:
         with managed_db_session() as session:
             user = session.query(User).first()
@@ -126,21 +113,21 @@ def setup_test_database(request):
     After tests, drop all tables unless --preserve-db is set.
     """
     logger.info("Setting up test database...")
-    
+
     # Drop all tables to ensure a clean slate
     Base.metadata.drop_all(bind=test_engine)
     logger.info("Dropped all existing tables.")
-    
+
     # Create all tables
     Base.metadata.create_all(bind=test_engine)
     logger.info("Created all tables based on models.")
-    
+
     # Initialize the database (e.g., run migrations or seed data)
     init_db()
     logger.info("Initialized the test database with initial data.")
-    
+
     yield  # All tests run here
-    
+
     preserve_db = request.config.getoption("--preserve-db")
     if preserve_db:
         logger.info("Skipping drop_db due to --preserve-db flag.")
@@ -198,7 +185,7 @@ def test_user(db_session: Session) -> User:
 def seed_users(db_session: Session, request) -> List[User]:
     """
     Create multiple test users in the database.
-    
+
     Usage:
         @pytest.mark.parametrize("seed_users", [10], indirect=True)
         def test_many_users(seed_users):
@@ -215,7 +202,7 @@ def seed_users(db_session: Session, request) -> List[User]:
         user = User(**user_data)
         users.append(user)
         db_session.add(user)
-    
+
     db_session.commit()
     logger.info(f"Seeded {len(users)} users into the test database.")
     return users
@@ -230,7 +217,7 @@ def fastapi_server():
     """
     server_url = 'http://127.0.0.1:8000/'
     logger.info("Starting test server...")
-    
+
     try:
         process = subprocess.Popen(
             ['python', 'main.py'],
@@ -239,10 +226,10 @@ def fastapi_server():
         )
         if not wait_for_server(server_url, timeout=30):
             raise ServerStartupError("Failed to start test server")
-        
+
         logger.info("Test server started successfully.")
         yield  # Run all tests that depend on this fixture
-        
+
     except Exception as e:
         logger.error(f"Server error: {str(e)}")
         raise
