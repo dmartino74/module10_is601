@@ -32,27 +32,23 @@ jobs:
           
       - uses: actions/cache@v3
         with:
-          path: |
-            venv
-            ~/.cache/pip
+          path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       
       - name: Install dependencies
         env:
-          # Point to the ephemeral PostgreSQL service on localhost:5432,
-          # using user/password from above
           DATABASE_URL: postgresql://user:password@localhost:5432/mytestdb
         run: |
           python -m venv venv
           source venv/bin/activate
+          pip install --upgrade pip
           pip install -r requirements.txt
           playwright install  # if you use Playwright for e2e tests
       
       - name: Run tests
         env:
-          # Ensure the test steps also see the same test DB
           DATABASE_URL: postgresql://user:password@localhost:5432/mytestdb
         run: |
           source venv/bin/activate
@@ -65,7 +61,7 @@ jobs:
           
           # 3) E2E or other tests
           pytest tests/e2e/
-  
+
   security:
     needs: test
     runs-on: ubuntu-latest
