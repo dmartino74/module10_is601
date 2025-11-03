@@ -2,6 +2,37 @@
 
 ---
 
+# 🏗️ Project Scaffold
+
+```text
+.
+├── Dockerfile
+├── LICENSE
+├── README.md
+├── app
+│   ├── __init__.py
+│   ├── auth/
+│   ├── config.py
+│   ├── database.py
+│   ├── database_init.py
+│   ├── models/
+│   ├── operations/
+│   └── schemas/
+├── docker-compose.yml
+├── main.py
+├── pytest.ini
+├── requirements.txt
+├── templates/
+│   └── index.html
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── e2e/
+│   ├── integration/
+│   └── unit/
+
+---
+
 # 🧩 1. Install Homebrew (Mac Only)
 
 > Skip this step if you're on Windows.

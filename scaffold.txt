@@ -1,0 +1,59 @@
+.
+├── Dockerfile
+├── LICENSE
+├── README.md
+├── __pycache__
+│   └── main.cpython-312.pyc
+├── app
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── auth
+│   ├── config.py
+│   ├── database.py
+│   ├── database_init.py
+│   ├── models
+│   ├── operations
+│   └── schemas
+├── docker-compose.yml
+├── htmlcov
+│   ├── class_index.html
+│   ├── coverage_html_cb_6fb7b396.js
+│   ├── favicon_32_cb_58284776.png
+│   ├── function_index.html
+│   ├── index.html
+│   ├── keybd_closed_cb_ce680311.png
+│   ├── status.json
+│   ├── style_cb_8e611ae1.css
+│   ├── z_053b8412cf8b8a96___init___py.html
+│   ├── z_154b9a16b3b765c0___init___py.html
+│   ├── z_154b9a16b3b765c0_dependencies_py.html
+│   ├── z_5f5a17c013354698___init___py.html
+│   ├── z_5f5a17c013354698_config_py.html
+│   ├── z_5f5a17c013354698_database_init_py.html
+│   ├── z_5f5a17c013354698_database_py.html
+│   ├── z_6c0e4b930745278b___init___py.html
+│   ├── z_6c0e4b930745278b_user_py.html
+│   ├── z_c0f67d75e686303c___init___py.html
+│   ├── z_c0f67d75e686303c_base_py.html
+│   └── z_c0f67d75e686303c_user_py.html
+├── main.py
+├── pytest.ini
+├── requirements.txt
+├── scaffold.txt
+├── templates
+│   └── index.html
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── conftest.py
+│   ├── e2e
+│   ├── integration
+│   └── unit
+└── venv
+    ├── bin
+    ├── include
+    ├── lib
+    ├── lib64 -> lib
+    └── pyvenv.cfg
+
+20 directories, 37 files
