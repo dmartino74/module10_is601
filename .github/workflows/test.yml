@@ -78,7 +78,6 @@ jobs:
           ignore-unfixed: true
           exit-code: '1'
           vuln-type: 'os,library'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
     needs: security
@@ -104,4 +103,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=dmartino74/module10_is601:cache
           cache-to: type=inline,mode=max
+
 
