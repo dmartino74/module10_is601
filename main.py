@@ -1,6 +1,5 @@
-# main.py
-
-import sys, os
+import os
+import sys
 import logging
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Depends
@@ -16,7 +15,7 @@ sys.path.append(os.path.dirname(__file__))
 
 # Local imports
 from app.operations import add, subtract, multiply, divide
-from app.schemas.user import UserCreate, UserResponse, UserLogin, Token
+from app.schemas.user import UserCreate, UserResponse, Token
 from app.auth.hashing import hash_password, verify_password
 from app import database, models
 
@@ -67,8 +66,7 @@ async def read_root(request: Request):
 @app.post("/add", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def add_route(operation: OperationRequest):
     try:
-        result = add(operation.a, operation.b)
-        return OperationResponse(result=result)
+        return OperationResponse(result=add(operation.a, operation.b))
     except Exception as e:
         logger.error(f"Add Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -76,8 +74,7 @@ async def add_route(operation: OperationRequest):
 @app.post("/subtract", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def subtract_route(operation: OperationRequest):
     try:
-        result = subtract(operation.a, operation.b)
-        return OperationResponse(result=result)
+        return OperationResponse(result=subtract(operation.a, operation.b))
     except Exception as e:
         logger.error(f"Subtract Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -85,8 +82,7 @@ async def subtract_route(operation: OperationRequest):
 @app.post("/multiply", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def multiply_route(operation: OperationRequest):
     try:
-        result = multiply(operation.a, operation.b)
-        return OperationResponse(result=result)
+        return OperationResponse(result=multiply(operation.a, operation.b))
     except Exception as e:
         logger.error(f"Multiply Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -94,8 +90,7 @@ async def multiply_route(operation: OperationRequest):
 @app.post("/divide", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def divide_route(operation: OperationRequest):
     try:
-        result = divide(operation.a, operation.b)
-        return OperationResponse(result=result)
+        return OperationResponse(result=divide(operation.a, operation.b))
     except ValueError as e:
         logger.error(f"Divide Operation Error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -138,11 +133,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # For now, return a placeholder token. In production, generate a JWT.
-    token = "fake-jwt-token"
-    return {"access_token": token, "token_type": "bearer", "user": user}
+    return {
+        "access_token": "fake-jwt-token",
+        "token_type": "bearer",
+        "user": user
+    }
 
 # ------------------------------
 
 if __name__ == "__main__":
-    # This lets you run: python main.py
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
