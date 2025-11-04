@@ -69,14 +69,14 @@ jobs:
       - name: Build image
         run: docker build -t app:test .
 
-      - name: Run Trivy vulnerability scanner (fail on CRITICAL only)
+      - name: Run Trivy vulnerability scanner (fail only on fixable HIGH/CRITICAL)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'app:test'
           format: 'table'
-          severity: 'CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
+          severity: 'HIGH,CRITICAL'   # scan for high+critical
+          ignore-unfixed: true        # ignore issues without a patch
+          exit-code: '1'              # fail only if such vulns are found
           vuln-type: 'os,library'
 
   deploy:
@@ -103,5 +103,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=registry,ref=dmartino74/module10_is601:cache
           cache-to: type=inline,mode=max
-
-
