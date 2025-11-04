@@ -1,7 +1,18 @@
+# Virtual environment
 venv/
+
+# Python cache and compiled files
 __pycache__/
 *.pyc
+
+# macOS metadata
 .DS_Store
+
+# Test and coverage artifacts
 .coverage
-.pytest_cache
-htmlcov
+.pytest_cache/
+htmlcov/
+
+# Optional: IDE/editor settings
+.vscode/
+.idea/

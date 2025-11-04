@@ -15,9 +15,9 @@ sys.path.append(os.path.dirname(__file__))
 
 # Local imports
 from app.operations import add, subtract, multiply, divide
-from app.schemas.user import UserCreate, UserResponse, Token
-from app.auth.hashing import hash_password, verify_password
-from app import database, models
+from app.schemas.user import UserCreate, UserResponse, Token, UserLogin
+from app import database
+from app.models.user import User
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -112,32 +112,18 @@ def get_db():
 
 @app.post("/register", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(models.User).filter(models.User.email == user.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    new_user = models.User(
-        username=user.username,
-        email=user.email,
-        password_hash=hash_password(user.password)
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    try:
+        new_user = User.register(db, user.dict())
+        return UserResponse.model_validate(new_user)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.password_hash):
+    token = User.authenticate(db, form_data.username, form_data.password)
+    if not token:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    # For now, return a placeholder token. In production, generate a JWT.
-    return {
-        "access_token": "fake-jwt-token",
-        "token_type": "bearer",
-        "user": user
-    }
+    return token
 
 # ------------------------------
 

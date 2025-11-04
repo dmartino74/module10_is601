@@ -1,9 +1,9 @@
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
 
-# ---------- NEWLY ADDED ----------
+
 class UserCreate(BaseModel):
     """
     Schema for new user registration.
@@ -13,18 +13,28 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
-    # Example payload for API docs (Swagger/Redoc)
+    # Enforce password length
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        if len(v) < 6:
+            raise ValueError("Password must be at least 6 characters long")
+        return v
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "username": "newuser",
                 "email": "newuser@example.com",
-                "password": "StrongPass123"
+                "password": "StrongPass123",
+                "first_name": "Lori",
+                "last_name": "Smith"
             }
         }
     )
-# ---------- END OF NEW ADDITION ----------
 
 
 class UserResponse(BaseModel):
@@ -38,12 +48,11 @@ class UserResponse(BaseModel):
     email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
-    is_active: Optional[bool] = True
-    is_verified: Optional[bool] = False
+    is_active: bool
+    is_verified: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    # Allows mapping directly from SQLAlchemy ORM objects
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -56,7 +65,6 @@ class Token(BaseModel):
     token_type: str = "bearer"
     user: UserResponse
 
-    # Example payload for API docs
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -94,7 +102,6 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
-    # Example payload for API docs
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
