@@ -74,9 +74,9 @@ jobs:
         with:
           image-ref: 'app:test'
           format: 'table'
-          severity: 'HIGH,CRITICAL'   # scan for high+critical
-          ignore-unfixed: true        # ignore issues without a patch
-          exit-code: '1'              # fail only if such vulns are found
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          exit-code: '1'
           vuln-type: 'os,library'
 
   deploy:
